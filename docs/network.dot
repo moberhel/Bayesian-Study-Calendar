@@ -1,0 +1,24 @@
+digraph G {
+  rankdir=TB; nodesep=0.45; ranksep=0.7;
+  node [fontname="Helvetica", fontsize=12, style="filled", color="#444444"];
+  edge [color="#555555"];
+
+  node [shape=ellipse, fillcolor="#dbe9f6"];            // observed chance nodes
+  Diff1; Diff2; Diff3; DaysLeft; Stress; Quiz;
+  node [shape=ellipse, fillcolor="#f3f3f3"];            // latent
+  Mastery;
+  node [shape=box, style="filled,rounded", fillcolor="#ffe8b3"];   // decision
+  Action;
+  node [shape=ellipse, style=filled, fillcolor="#e3f2dc"];         // outcomes (queried)
+  Grade; FutureStress;
+
+  Diff1 -> Mastery; Diff2 -> Mastery; Diff3 -> Mastery;
+  Mastery -> Quiz;
+  Mastery -> Grade; Action -> Grade; DaysLeft -> Grade;
+  Stress -> FutureStress; Action -> FutureStress; DaysLeft -> FutureStress; Mastery -> FutureStress;
+
+  Util [shape=diamond, style=filled, fillcolor="#f6d6d6", label="Utility\nE[score] - λ·P(High stress)"];
+  Grade -> Util; FutureStress -> Util;
+
+  { rank=same; Diff1; Diff2; Diff3; DaysLeft; Stress; Action }
+}

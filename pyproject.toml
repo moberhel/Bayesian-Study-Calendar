@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bayes-study-planner"
+version = "0.1.0"
+description = "Bayesian-network study scheduler: expected-utility decisions written to your calendar"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+google = ["google-api-python-client>=2.0", "google-auth-oauthlib>=1.0"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+study-planner = "study_planner.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

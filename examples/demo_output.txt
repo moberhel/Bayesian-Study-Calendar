@@ -1,0 +1,142 @@
+============================================================================== 
+MODEL PARAMETERS (rationale in model.py / docs/model_parameters.md)
+==============================================================================
+P(Mastery[Low,Med,High] | #Hard concepts):
+   0 hard: [0.1, 0.3, 0.6]
+   1 hard: [0.2, 0.4, 0.4]
+   2 hard: [0.4, 0.4, 0.2]
+   3 hard: [0.6, 0.3, 0.1]
+P(Quiz[Poor,OK,Good] | Mastery):
+   Low : [0.7, 0.25, 0.05]
+   Med : [0.25, 0.5, 0.25]
+   High: [0.05, 0.25, 0.7]
+P(Grade[Low,Mid,High] | Mastery=Med, Action, DaysLeft):
+   Intense5h   {'Few': [0.02, 0.3, 0.68], 'Some': [0.03, 0.35, 0.62], 'Many': [0.04, 0.4, 0.56]}
+   Moderate3h  {'Few': [0.06, 0.5, 0.44], 'Some': [0.07, 0.53, 0.4], 'Many': [0.08, 0.55, 0.37]}
+   Light1h     {'Few': [0.13, 0.62, 0.25], 'Some': [0.14, 0.63, 0.23], 'Many': [0.15, 0.63, 0.22]}
+   Rest        {'Few': [0.22, 0.63, 0.15], 'Some': [0.22, 0.63, 0.15], 'Many': [0.22, 0.63, 0.15]}
+P(FutureStress=High | Stress=Low, Action, DaysLeft, Mastery=Med):
+   Intense5h   {'Few': 0.56, 'Some': 0.53, 'Many': 0.51}
+   Moderate3h  {'Few': 0.43, 'Some': 0.36, 'Many': 0.31}
+   Light1h     {'Few': 0.44, 'Some': 0.33, 'Many': 0.26}
+   Rest        {'Few': 0.4, 'Some': 0.27, 'Many': 0.2}
+
+==============================================================================
+A. DIFFICULTY SWEEP  (DaysLeft=Some, Quiz=OK, Stress=Low)
+==============================================================================
+Diff1 Diff2 Diff3  P(Mastery=Low)   best action
+Easy  Easy  Easy             0.08    Moderate3h
+Easy  Easy  Hard             0.14    Moderate3h
+Easy  Hard  Easy             0.14    Moderate3h
+Easy  Hard  Hard             0.29     Intense5h
+Hard  Easy  Easy             0.14    Moderate3h
+Hard  Easy  Hard             0.29     Intense5h
+Hard  Hard  Easy             0.29     Intense5h
+Hard  Hard  Hard             0.46     Intense5h
+
+==============================================================================
+B. ONE-DAY DECISIONS: full expected-utility tables
+==============================================================================
+
+Struggling student, 2 days to exam
+   evidence: {'Diff1': 'Hard', 'Diff2': 'Hard', 'Diff3': 'Hard', 'Quiz': 'Poor', 'DaysLeft': 'Few', 'Stress': 'Low'}
+   posterior P(Mastery[Low,Med,High]) = [0.84, 0.15, 0.01]
+   action      E[score]  P(HiStress)    E[U]
+   Intense5h       72.0         0.61    53.8  <== BEST
+   Moderate3h      65.1         0.56    48.3
+   Light1h         59.8         0.63    40.8
+   Rest            57.0         0.64    37.8
+
+Struggling student, 8 days to exam
+   evidence: {'Diff1': 'Hard', 'Diff2': 'Hard', 'Diff3': 'Hard', 'Quiz': 'Poor', 'DaysLeft': 'Many', 'Stress': 'Low'}
+   posterior P(Mastery[Low,Med,High]) = [0.84, 0.15, 0.01]
+   action      E[score]  P(HiStress)    E[U]
+   Intense5h       68.6         0.55    52.1  <== BEST
+   Moderate3h      63.1         0.40    51.1
+   Light1h         59.2         0.39    47.4
+   Rest            57.0         0.35    46.6
+
+Advanced student, 8 days to exam
+   evidence: {'Diff1': 'Easy', 'Diff2': 'Easy', 'Diff3': 'Easy', 'Quiz': 'Good', 'DaysLeft': 'Many', 'Stress': 'Low'}
+   posterior P(Mastery[Low,Med,High]) = [0.01, 0.15, 0.84]
+   action      E[score]  P(HiStress)    E[U]
+   Intense5h       92.8         0.48    78.5
+   Moderate3h      91.6         0.24    84.3
+   Light1h         90.0         0.18    84.7
+   Rest            88.5         0.12    85.0  <== BEST
+
+Advanced but burnt out, 4 days to exam
+   evidence: {'Diff1': 'Easy', 'Diff2': 'Easy', 'Diff3': 'Easy', 'Quiz': 'Good', 'DaysLeft': 'Some', 'Stress': 'High'}
+   posterior P(Mastery[Low,Med,High]) = [0.01, 0.15, 0.84]
+   action      E[score]  P(HiStress)    E[U]
+   Intense5h       93.2         0.95    64.6
+   Moderate3h      91.8         0.65    72.3
+   Light1h         90.2         0.45    76.6
+   Rest            88.5         0.23    81.5  <== BEST
+
+==============================================================================
+C. DYNAMIC PLANS  (today=2026-11-12, exam=2026-11-20)
+==============================================================================
+
+--- STRUGGLING  (start progress=0.10, stress=1.0)  -> examples/calendars/struggling.ics ---
+date        left days quiz stress ACTION      calendar entry
+Thu Nov 12    8  Many Poor Low    Intense5h   17:00-22:00
+Fri Nov 13    7  Many Poor Low    Intense5h   17:00-22:00
+Sat Nov 14    6  Some OK   High   Rest        all-day rest
+Sun Nov 15    5  Some OK   Low    Intense5h   17:00-22:00
+Mon Nov 16    4  Some OK   High   Rest        all-day rest
+Tue Nov 17    3  Some OK   Low    Intense5h   17:00-22:00
+Wed Nov 18    2  Few  OK   High   Intense5h   17:00-22:00
+Thu Nov 19    1  Few  Good High   Rest        all-day rest
+
+--- ADVANCED  (start progress=0.80, stress=0.5)  -> examples/calendars/advanced.ics ---
+date        left days quiz stress ACTION      calendar entry
+Thu Nov 12    8  Many Good Low    Rest        all-day rest
+Fri Nov 13    7  Many Good Low    Rest        all-day rest
+Sat Nov 14    6  Some Good Low    Rest        all-day rest
+Sun Nov 15    5  Some Good Low    Rest        all-day rest
+Mon Nov 16    4  Some Good Low    Rest        all-day rest
+Tue Nov 17    3  Some Good Low    Rest        all-day rest
+Wed Nov 18    2  Few  Good Low    Moderate3h  17:00-20:00
+Thu Nov 19    1  Few  Good Low    Moderate3h  17:00-20:00
+
+--- MIXED (one hard concept)  (start progress=0.45, stress=1.5)  -> examples/calendars/mixed.ics ---
+date        left days quiz stress ACTION      calendar entry
+Thu Nov 12    8  Many OK   Low    Moderate3h  17:00-20:00
+Fri Nov 13    7  Many OK   Low    Moderate3h  17:00-20:00
+Sat Nov 14    6  Some OK   Low    Moderate3h  17:00-20:00
+Sun Nov 15    5  Some Good High   Rest        all-day rest
+Mon Nov 16    4  Some Good Low    Moderate3h  17:00-20:00
+Tue Nov 17    3  Some Good Low    Moderate3h  17:00-20:00
+Wed Nov 18    2  Few  Good Low    Moderate3h  17:00-20:00
+Thu Nov 19    1  Few  Good High   Rest        all-day rest
+
+--- ANXIOUS ADVANCED  (start progress=0.65, stress=3.5)  -> examples/calendars/anxious.ics ---
+date        left days quiz stress ACTION      calendar entry
+Thu Nov 12    8  Many OK   High   Rest        all-day rest
+Fri Nov 13    7  Many OK   Low    Moderate3h  17:00-20:00
+Sat Nov 14    6  Some Good High   Rest        all-day rest
+Sun Nov 15    5  Some Good Low    Moderate3h  17:00-20:00
+Mon Nov 16    4  Some Good Low    Moderate3h  17:00-20:00
+Tue Nov 17    3  Some Good Low    Moderate3h  17:00-20:00
+Wed Nov 18    2  Few  Good High   Rest        all-day rest
+Thu Nov 19    1  Few  Good Low    Moderate3h  17:00-20:00
+
+==============================================================================
+D. EFFECT OF lambda (stress weight) - same student, same day
+==============================================================================
+evidence: {'Diff1': 'Hard', 'Diff2': 'Easy', 'Diff3': 'Hard', 'Quiz': 'OK', 'DaysLeft': 'Some', 'Stress': 'Low'}
+   lambda=0   -> Intense5h   (E[score]=82.2, P(HiStress)=0.54)
+   lambda=10  -> Intense5h   (E[score]=82.2, P(HiStress)=0.54)
+   lambda=20  -> Intense5h   (E[score]=82.2, P(HiStress)=0.54)
+   lambda=30  -> Intense5h   (E[score]=82.2, P(HiStress)=0.54)
+   lambda=45  -> Moderate3h  (E[score]=77.2, P(HiStress)=0.38)
+   lambda=60  -> Moderate3h  (E[score]=77.2, P(HiStress)=0.38)
+
+==============================================================================
+SUMMARY: total scheduled study hours per scenario
+==============================================================================
+STRUGGLING                    25 h   rest days: 3   ['Intense5h', 'Intense5h', 'Rest', 'Intense5h', 'Rest', 'Intense5h', 'Intense5h', 'Rest']
+ADVANCED                       6 h   rest days: 6   ['Rest', 'Rest', 'Rest', 'Rest', 'Rest', 'Rest', 'Moderate3h', 'Moderate3h']
+MIXED (one hard concept)      18 h   rest days: 2   ['Moderate3h', 'Moderate3h', 'Moderate3h', 'Rest', 'Moderate3h', 'Moderate3h', 'Moderate3h', 'Rest']
+ANXIOUS ADVANCED              15 h   rest days: 3   ['Rest', 'Moderate3h', 'Rest', 'Moderate3h', 'Moderate3h', 'Moderate3h', 'Rest', 'Moderate3h']
