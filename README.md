@@ -39,6 +39,22 @@ pytest
 Import the `.ics` files into Google Calendar, Apple Calendar or Outlook. Without installing:
 `PYTHONPATH=src python -m study_planner demo`.
 
+To make a plan from your own exam and current study signals:
+
+```bash
+study-planner plan --exam-date 2026-12-01 \
+  --diff1 Hard --diff2 Easy --diff3 Hard --quiz OK --stress Low \
+  --exam-name "CS Exam" --out cs-exam.ics
+```
+
+The start date defaults to today. The planner uses the quiz and stress values as its initial
+evidence, then uses the toy simulator to estimate how those signals may change as scheduled
+sessions are completed. The command prints each day's expected utility for all four actions.
+Use `--calendar google` to write directly to Google Calendar instead; the first run opens Google's
+OAuth consent flow and stores a local token at `token.json`. Enable the Google Calendar API and
+create an OAuth **Desktop app** client first, saving its file as `credentials.json`. Set
+`--calendar-id` and `--timezone` if needed. Google credentials and tokens are ignored by Git.
+
 ```python
 import datetime as dt
 from study_planner import BayesNet, decide
@@ -74,8 +90,9 @@ Captured output is in [`examples/demo_output.txt`](examples/demo_output.txt).
 ## Google Calendar
 
 `study_planner.calendars.google.GoogleCalendar` implements the same `CalendarBackend` interface as
-the offline `.ics` backend. Install with `pip install ".[google]"`, create an OAuth client in the
-Google Cloud console, and pass authorised credentials:
+the offline `.ics` backend. Install with `pip install ".[google]"` and create an OAuth Desktop app
+client in the Google Cloud console. The `plan --calendar google` command handles local OAuth
+authorization; the backend can also be constructed directly with authorized credentials:
 
 ```python
 from study_planner.calendars.google import GoogleCalendar
@@ -103,8 +120,9 @@ docs/             network diagram, parameter reference
 
 ## Limitations
 
-- **The Google backend is untested.** It was written against the documented API, but never run
-  against a real account. The offline `.ics` backend is what the tests and demo exercise.
+- **Google Calendar has not been tested against a live account.** Its request construction,
+  timezone handling, and event conversion are covered by mocked API tests; OAuth setup, permissions,
+  quotas, and real-calendar behavior still need a user-account smoke test.
 - **The simulator is a toy.** Day-to-day changes in progress and stress are simple rules used to roll
   the demo forward. All decisions come from the Bayes net, but the dynamics are not validated.
 - **Parameters are handcrafted and were tuned after inspecting plans** (see the tuning history).
@@ -114,6 +132,8 @@ docs/             network diagram, parameter reference
   student. A real deployment should cap consecutive intense days and enforce minimum review.
 - The three concepts are not scheduled individually: sessions are labelled with the Hard concepts
   (or the first concept if none are Hard), not allocated per concept.
+- The default dates for the four-scenario demo are relative to the day it is run. `examples/` files
+  are captured sample outputs, not refreshed automatically.
 
 ## License
 

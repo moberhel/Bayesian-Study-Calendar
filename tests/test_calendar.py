@@ -84,3 +84,99 @@ def test_ics_export_is_parseable(tmp_path):
     assert text.startswith("BEGIN:VCALENDAR") and text.rstrip().endswith("END:VCALENDAR")
     assert text.count("BEGIN:VEVENT") == text.count("END:VEVENT") == len(cal.events)
     assert "SUMMARY:Lecture" in text and "Study block: Inference [Exam]" in text
+
+
+def test_google_calendar_reads_all_day_events_and_local_times(monkeypatch):
+    from zoneinfo import ZoneInfo
+    import sys
+    import types
+    from study_planner.calendars import google
+    local_start = dt.datetime.combine(DAY, dt.time(17), ZoneInfo("America/Vancouver")).isoformat()
+    local_end = dt.datetime.combine(DAY, dt.time(20), ZoneInfo("America/Vancouver")).isoformat()
+
+    class Request:
+        def execute(self):
+            return {"items": [
+                {"id": "rest", "summary": "REST", "start": {"date": DAY.isoformat()},
+                 "end": {"date": (DAY + dt.timedelta(days=1)).isoformat()},
+                 "extendedProperties": {"private": {"tag": google.TAG}}},
+                {"id": "study", "summary": "Study", "start": {"dateTime": local_start},
+                 "end": {"dateTime": local_end}},
+            ]}
+
+    class Events:
+        def list(self, **kwargs):
+            self.kwargs = kwargs
+            return Request()
+
+    class Service:
+        def __init__(self):
+            self.api = Events()
+        def events(self):
+            return self.api
+
+    service = Service()
+    discovery = types.ModuleType("googleapiclient.discovery")
+    discovery.build = lambda *args, **kwargs: service
+    package = types.ModuleType("googleapiclient")
+    package.discovery = discovery
+    monkeypatch.setitem(sys.modules, "googleapiclient", package)
+    monkeypatch.setitem(sys.modules, "googleapiclient.discovery", discovery)
+
+    cal = google.GoogleCalendar(object(), tz="America/Vancouver")
+    events = cal.list_events(DAY)
+
+    assert dt.datetime.fromisoformat(service.api.kwargs["timeMin"]).utcoffset() is not None
+    assert service.api.kwargs["timeMax"].startswith("2026-11-13T00:00:00")
+    assert events[0].all_day and events[0].system
+    assert events[1].start == at(17) and events[1].end == at(20)
+    utc_value = dt.datetime(2026, 11, 13, 1, tzinfo=dt.timezone.utc)
+    assert cal._local_datetime("2026-11-13T01:00:00Z") == utc_value.astimezone(cal.tz).replace(tzinfo=None)
+
+
+def test_google_calendar_inserts_all_day_events_and_deletes_by_id(monkeypatch):
+    import sys
+    import types
+    from study_planner.calendars import google
+
+    class Request:
+        def execute(self):
+            return {}
+
+    class Events:
+        def __init__(self):
+            self.bodies = []
+        def insert(self, **kwargs):
+            self.bodies.append(kwargs["body"])
+            return Request()
+        def delete(self, **kwargs):
+            self.delete_args = kwargs
+            return Request()
+
+    class Service:
+        def __init__(self):
+            self.api = Events()
+        def events(self):
+            return self.api
+
+    service = Service()
+    discovery = types.ModuleType("googleapiclient.discovery")
+    discovery.build = lambda *args, **kwargs: service
+    package = types.ModuleType("googleapiclient")
+    package.discovery = discovery
+    monkeypatch.setitem(sys.modules, "googleapiclient", package)
+    monkeypatch.setitem(sys.modules, "googleapiclient.discovery", discovery)
+
+    cal = google.GoogleCalendar(object(), calendar_id="primary")
+    rest = Event("REST", at(0), at(0) + dt.timedelta(days=1), all_day=True, system=True)
+    cal.insert(rest)
+    study = Event("Study", at(17), at(18), system=True)
+    cal.insert(study)
+    cal.delete(Event("REST", rest.start, rest.end, uid="event-id"))
+
+    rest_body, study_body = service.api.bodies
+    assert rest_body["start"] == {"date": DAY.isoformat()}
+    assert rest_body["end"] == {"date": (DAY + dt.timedelta(days=1)).isoformat()}
+    assert study_body["start"]["dateTime"] == at(17).replace(tzinfo=cal.tz).isoformat()
+    assert study_body["start"]["timeZone"] == "America/Vancouver"
+    assert service.api.delete_args == {"calendarId": "primary", "eventId": "event-id"}

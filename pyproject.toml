@@ -12,7 +12,7 @@ license = { text = "MIT" }
 dependencies = ["numpy>=1.24"]
 
 [project.optional-dependencies]
-google = ["google-api-python-client>=2.0", "google-auth-oauthlib>=1.0"]
+google = ["google-api-python-client>=2.0", "google-auth-oauthlib>=1.0", "tzdata>=2022.7"]
 dev = ["pytest>=7"]
 
 [project.scripts]

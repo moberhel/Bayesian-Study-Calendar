@@ -4,16 +4,24 @@ import argparse
 import datetime as dt
 import itertools
 import os
+from pathlib import Path
 import numpy as np
 
 from .model import (STATES, MASTERY_BY_NUM_HARD, QUIZ_GIVEN_MASTERY)
 from .inference import BayesNet
 from .decision import decide
-from .simulation import plan
+from .simulation import Student, plan
 from .calendars import LocalICSCalendar, HOURS
 from .scenarios import make_students, SNAPSHOTS, add_existing_commitments, TODAY, EXAM
 
 BAR = "=" * 78
+
+
+def parse_date(value: str) -> dt.date:
+    try:
+        return dt.date.fromisoformat(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("date must use YYYY-MM-DD format") from exc
 
 
 def print_parameters(bn: BayesNet) -> None:
@@ -88,14 +96,80 @@ def demo(out_dir: str) -> None:
         print(f"{k:<28} {sum(HOURS.get(a, 0) for a in acts):>3} h   rest days: {acts.count('Rest')}   {acts}")
 
 
+def google_calendar(args):
+    from google.auth.transport.requests import Request
+    from google.oauth2.credentials import Credentials
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    from .calendars.google import GoogleCalendar
+
+    token_path = Path(args.token)
+    token_path.parent.mkdir(parents=True, exist_ok=True)
+    creds = Credentials.from_authorized_user_file(str(token_path), GoogleCalendar.SCOPES) if token_path.exists() else None
+    if creds is not None and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+    if creds is None or not creds.valid:
+        flow = InstalledAppFlow.from_client_secrets_file(args.credentials, GoogleCalendar.SCOPES)
+        creds = flow.run_local_server(port=0)
+    token_path.write_text(creds.to_json(), encoding="utf-8")
+    return GoogleCalendar(creds, calendar_id=args.calendar_id, tz=args.timezone)
+
+
+def plan_for_user(args) -> None:
+    start = args.start_date
+    exam = args.exam_date
+    if exam <= start:
+        raise SystemExit("--exam-date must be later than --start-date")
+
+    progress = {"Poor": 0.2, "OK": 0.5, "Good": 0.8}[args.quiz]
+    stress_points = {"Low": 1.0, "High": 3.0}[args.stress]
+    student = Student(
+        "you",
+        {"Concept 1": args.diff1, "Concept 2": args.diff2, "Concept 3": args.diff3},
+        progress,
+        stress_points,
+    )
+    cal = google_calendar(args) if args.calendar == "google" else LocalICSCalendar()
+    rows = plan(student, args.exam_name, exam, start, cal, BayesNet())
+
+    if args.calendar == "ics":
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        cal.export(args.out)
+        print(f"Calendar plan written to {args.out}")
+    print(f"Study plan from {start} through {exam - dt.timedelta(days=1)}:")
+    for day, _days_left, _evidence, decision, _progress, _stress in rows:
+        utilities = ", ".join(f"{action}={value:.1f}" for action, value in decision.eu.items())
+        print(f"  {day}: {decision.best} (expected utilities: {utilities})")
+
+
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(prog="study-planner", description="Bayesian study planner")
     sub = ap.add_subparsers(dest="cmd", required=True)
     d = sub.add_parser("demo", help="run the four student scenarios and write .ics files")
     d.add_argument("--out", default="calendars_out", help="directory for generated .ics files")
+    p = sub.add_parser("plan", help="build a study plan for your exam and add it to a calendar")
+    p.add_argument("--exam-date", required=True, type=parse_date, help="exam date in YYYY-MM-DD format")
+    p.add_argument("--start-date", default=dt.date.today(), type=parse_date,
+                   help="first day to plan (default: today), YYYY-MM-DD")
+    p.add_argument("--exam-name", default="Exam")
+    for index in range(1, 4):
+        p.add_argument(f"--diff{index}", required=True, choices=("Easy", "Hard"),
+                       help=f"difficulty of concept {index}")
+    p.add_argument("--quiz", required=True, choices=("Poor", "OK", "Good"),
+                   help="most recent practice quiz result")
+    p.add_argument("--stress", required=True, choices=("Low", "High"),
+                   help="current stress level")
+    p.add_argument("--calendar", choices=("ics", "google"), default="ics")
+    p.add_argument("--out", default="study-plan.ics", help="output path for --calendar ics")
+    p.add_argument("--credentials", default="credentials.json",
+                   help="Google OAuth client credentials JSON")
+    p.add_argument("--token", default="token.json", help="path for the local OAuth token")
+    p.add_argument("--calendar-id", default="primary")
+    p.add_argument("--timezone", default="America/Vancouver")
     args = ap.parse_args(argv)
     if args.cmd == "demo":
         demo(args.out)
+    elif args.cmd == "plan":
+        plan_for_user(args)
 
 
 if __name__ == "__main__":

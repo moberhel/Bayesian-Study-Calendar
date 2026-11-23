@@ -4,8 +4,8 @@ import datetime as dt
 from .simulation import Student
 from .calendars.base import Event, CalendarBackend
 
-TODAY = dt.date(2026, 11, 12)
-EXAM = dt.date(2026, 11, 20)
+TODAY = dt.date.today()
+EXAM = TODAY + dt.timedelta(days=8)
 
 
 def make_students() -> dict[str, Student]:
