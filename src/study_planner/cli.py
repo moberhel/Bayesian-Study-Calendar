@@ -1,10 +1,15 @@
 """Command-line demo:  study-planner demo [--out DIR]   (or: python -m study_planner demo)"""
 from __future__ import annotations
 import argparse
+import ctypes
 import datetime as dt
 import itertools
 import os
 from pathlib import Path
+import re
+import shlex
+import sys
+import uuid
 import numpy as np
 
 from .model import (STATES, MASTERY_BY_NUM_HARD, QUIZ_GIVEN_MASTERY)
@@ -22,6 +27,75 @@ def parse_date(value: str) -> dt.date:
         return dt.date.fromisoformat(value)
     except ValueError as exc:
         raise argparse.ArgumentTypeError("date must use YYYY-MM-DD format") from exc
+
+
+def _windows_downloads_dir() -> Path:
+    from ctypes import wintypes
+
+    shell32 = ctypes.WinDLL("shell32", use_last_error=True)
+    ole32 = ctypes.WinDLL("ole32")
+
+    class GUID(ctypes.Structure):
+        _fields_ = [
+            ("Data1", ctypes.c_uint32),
+            ("Data2", ctypes.c_uint16),
+            ("Data3", ctypes.c_uint16),
+            ("Data4", ctypes.c_ubyte * 8),
+        ]
+
+    folder_id = uuid.UUID("374DE290-123F-4565-9164-39C4925E467B")
+    guid = GUID.from_buffer_copy(folder_id.bytes_le)
+    path = wintypes.LPWSTR()
+    get_folder_path = shell32.SHGetKnownFolderPath
+    get_folder_path.argtypes = [
+        ctypes.POINTER(GUID), wintypes.DWORD, wintypes.HANDLE, ctypes.POINTER(wintypes.LPWSTR)
+    ]
+    get_folder_path.restype = ctypes.c_long
+    result = get_folder_path(
+        ctypes.byref(guid), 0, None, ctypes.byref(path)
+    )
+    if result != 0:
+        raise OSError(result, "Could not locate the Windows Downloads folder")
+    try:
+        return Path(path.value)
+    finally:
+        free = ole32.CoTaskMemFree
+        free.argtypes = [ctypes.c_void_p]
+        free.restype = None
+        free(ctypes.cast(path, ctypes.c_void_p))
+
+
+def downloads_dir() -> Path:
+    """Find the user's Downloads folder using the platform's standard location."""
+    home = Path.home()
+    if sys.platform == "win32":
+        try:
+            return _windows_downloads_dir()
+        except (AttributeError, OSError):
+            return home / "Downloads"
+
+    if sys.platform.startswith("linux"):
+        config_home = Path(os.environ.get("XDG_CONFIG_HOME", home / ".config"))
+        user_dirs = config_home / "user-dirs.dirs"
+        try:
+            for line in user_dirs.read_text(encoding="utf-8").splitlines():
+                match = re.match(r'\s*XDG_DOWNLOAD_DIR=(.*)\s*$', line)
+                if match:
+                    value = shlex.split(match.group(1))[0]
+                    return Path(os.path.expandvars(value)).expanduser()
+        except (OSError, ValueError, IndexError):
+            pass
+
+    return home / "Downloads"
+
+
+def _writable_downloads_dir() -> Path:
+    directory = downloads_dir()
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return Path.cwd()
+    return directory
 
 
 def print_parameters(bn: BayesNet) -> None:
@@ -132,9 +206,10 @@ def plan_for_user(args) -> None:
     rows = plan(student, args.exam_name, exam, start, cal, BayesNet())
 
     if args.calendar == "ics":
-        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-        cal.export(args.out)
-        print(f"Calendar plan written to {args.out}")
+        output = Path(args.out) if args.out else _writable_downloads_dir() / "study-plan.ics"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        cal.export(str(output))
+        print(f"Calendar plan written to {output}")
     print(f"Study plan from {start} through {exam - dt.timedelta(days=1)}:")
     for day, _days_left, _evidence, decision, _progress, _stress in rows:
         utilities = ", ".join(f"{action}={value:.1f}" for action, value in decision.eu.items())
@@ -145,7 +220,7 @@ def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(prog="study-planner", description="Bayesian study planner")
     sub = ap.add_subparsers(dest="cmd", required=True)
     d = sub.add_parser("demo", help="run the four student scenarios and write .ics files")
-    d.add_argument("--out", default="calendars_out", help="directory for generated .ics files")
+    d.add_argument("--out", help="directory for generated .ics files (default: Downloads)")
     p = sub.add_parser("plan", help="build a study plan for your exam and add it to a calendar")
     p.add_argument("--exam-date", required=True, type=parse_date, help="exam date in YYYY-MM-DD format")
     p.add_argument("--start-date", default=dt.date.today(), type=parse_date,
@@ -159,7 +234,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--stress", required=True, choices=("Low", "High"),
                    help="current stress level")
     p.add_argument("--calendar", choices=("ics", "google"), default="ics")
-    p.add_argument("--out", default="study-plan.ics", help="output path for --calendar ics")
+    p.add_argument("--out", help="output path for --calendar ics (default: Downloads/study-plan.ics)")
     p.add_argument("--credentials", default="credentials.json",
                    help="Google OAuth client credentials JSON")
     p.add_argument("--token", default="token.json", help="path for the local OAuth token")
@@ -167,7 +242,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--timezone", default="America/Vancouver")
     args = ap.parse_args(argv)
     if args.cmd == "demo":
-        demo(args.out)
+        demo(str(Path(args.out) if args.out else _writable_downloads_dir()))
     elif args.cmd == "plan":
         plan_for_user(args)
 

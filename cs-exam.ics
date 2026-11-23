@@ -1,0 +1,68 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//bayes-study-planner//EN
+BEGIN:VEVENT
+UID:77bb33a3-61d6-43fe-9a61-52fcdac6a5f3@bayes-study-planner
+DTSTAMP:20261123T150857
+DTSTART:20261123T080000
+DTEND:20261123T110000
+SUMMARY:Study block: Concept 1, Concept 3 [Exam]
+DESCRIPTION:Evidence: {'Diff1': 'Hard', 'Diff2': 'Easy', 'Diff3': 'Hard', 'Quiz': 'OK', 'DaysLeft': 'Many', 'Stress': 'Low'}. E[U]: Intense5h=65.4, Moderate3h=66.5, Light1h=63.8, Rest=62.8
+END:VEVENT
+BEGIN:VEVENT
+UID:05721867-7d50-4130-a95c-db860ba017f4@bayes-study-planner
+DTSTAMP:20261123T150857
+DTSTART:20261124T080000
+DTEND:20261124T110000
+SUMMARY:Study block: Concept 1, Concept 3 [Exam]
+DESCRIPTION:Evidence: {'Diff1': 'Hard', 'Diff2': 'Easy', 'Diff3': 'Hard', 'Quiz': 'OK', 'DaysLeft': 'Many', 'Stress': 'Low'}. E[U]: Intense5h=65.4, Moderate3h=66.5, Light1h=63.8, Rest=62.8
+END:VEVENT
+BEGIN:VEVENT
+UID:25a8bf2e-9752-48d6-8bfb-cbea55c6f41b@bayes-study-planner
+DTSTAMP:20261123T150857
+DTSTART:20261125T080000
+DTEND:20261125T130000
+SUMMARY:MANDATORY intense study: Concept 1, Concept 3 [Exam]
+DESCRIPTION:Evidence: {'Diff1': 'Hard', 'Diff2': 'Easy', 'Diff3': 'Hard', 'Quiz': 'OK', 'DaysLeft': 'Some', 'Stress': 'Low'}. E[U]: Intense5h=66.1, Moderate3h=65.9, Light1h=62.0, Rest=60.5
+END:VEVENT
+BEGIN:VEVENT
+UID:269c0ba9-44d0-4141-9031-8aba9b06cd7d@bayes-study-planner
+DTSTAMP:20261123T150857
+DTSTART;VALUE=DATE:20261126
+DTEND;VALUE=DATE:20261127
+SUMMARY:REST DAY (protected) - Exam
+DESCRIPTION:Evidence: {'Diff1': 'Hard', 'Diff2': 'Easy', 'Diff3': 'Hard', 'Quiz': 'Good', 'DaysLeft': 'Some', 'Stress': 'High'}. E[U]: Intense5h=60.9, Moderate3h=65.9, Light1h=68.0, Rest=72.1
+END:VEVENT
+BEGIN:VEVENT
+UID:6197836e-3c71-404a-981d-b4958e0fb816@bayes-study-planner
+DTSTAMP:20261123T150857
+DTSTART:20261127T080000
+DTEND:20261127T110000
+SUMMARY:Study block: Concept 1, Concept 3 [Exam]
+DESCRIPTION:Evidence: {'Diff1': 'Hard', 'Diff2': 'Easy', 'Diff3': 'Hard', 'Quiz': 'Good', 'DaysLeft': 'Some', 'Stress': 'Low'}. E[U]: Intense5h=74.3, Moderate3h=77.4, Light1h=75.9, Rest=75.2
+END:VEVENT
+BEGIN:VEVENT
+UID:331264d8-5f0b-49b7-b632-ac307178de86@bayes-study-planner
+DTSTAMP:20261123T150857
+DTSTART:20261128T080000
+DTEND:20261128T110000
+SUMMARY:Study block: Concept 1, Concept 3 [Exam]
+DESCRIPTION:Evidence: {'Diff1': 'Hard', 'Diff2': 'Easy', 'Diff3': 'Hard', 'Quiz': 'Good', 'DaysLeft': 'Some', 'Stress': 'Low'}. E[U]: Intense5h=74.3, Moderate3h=77.4, Light1h=75.9, Rest=75.2
+END:VEVENT
+BEGIN:VEVENT
+UID:af698748-03a5-4bf7-a8de-0cdb481c2310@bayes-study-planner
+DTSTAMP:20261123T150857
+DTSTART;VALUE=DATE:20261129
+DTEND;VALUE=DATE:20261130
+SUMMARY:REST DAY (protected) - Exam
+DESCRIPTION:Evidence: {'Diff1': 'Hard', 'Diff2': 'Easy', 'Diff3': 'Hard', 'Quiz': 'Good', 'DaysLeft': 'Few', 'Stress': 'High'}. E[U]: Intense5h=61.4, Moderate3h=65.3, Light1h=66.2, Rest=69.5
+END:VEVENT
+BEGIN:VEVENT
+UID:0333d5ed-e41e-418b-b7d4-b97ea461843a@bayes-study-planner
+DTSTAMP:20261123T150857
+DTSTART:20261130T080000
+DTEND:20261130T110000
+SUMMARY:Study block: Concept 1, Concept 3 [Exam]
+DESCRIPTION:Evidence: {'Diff1': 'Hard', 'Diff2': 'Easy', 'Diff3': 'Hard', 'Quiz': 'Good', 'DaysLeft': 'Few', 'Stress': 'Low'}. E[U]: Intense5h=74.3, Moderate3h=76.4, Light1h=74.0, Rest=72.9
+END:VEVENT
+END:VCALENDAR

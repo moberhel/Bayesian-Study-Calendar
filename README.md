@@ -32,7 +32,7 @@ The ten variables, every CPT parameter and the tuning history are documented in
 
 ```bash
 pip install -e ".[dev]"
-study-planner demo --out calendars_out     # four scenarios; writes one .ics per student
+study-planner demo                         # four scenarios; writes .ics files to Downloads
 pytest
 ```
 
@@ -44,12 +44,16 @@ To make a plan from your own exam and current study signals:
 ```bash
 study-planner plan --exam-date 2026-12-01 \
   --diff1 Hard --diff2 Easy --diff3 Hard --quiz OK --stress Low \
-  --exam-name "CS Exam" --out cs-exam.ics
+  --exam-name "CS Exam"
 ```
 
 The start date defaults to today. The planner uses the quiz and stress values as its initial
 evidence, then uses the toy simulator to estimate how those signals may change as scheduled
 sessions are completed. The command prints each day's expected utility for all four actions.
+Generated `.ics` files go to the current user's Downloads folder by default (including redirected
+Windows Downloads folders and Linux XDG Downloads settings). Use `--out` to choose another file
+path for `plan` or directory for `demo`. If the default Downloads folder cannot be created or
+accessed, output falls back to the current working directory.
 Use `--calendar google` to write directly to Google Calendar instead; the first run opens Google's
 OAuth consent flow and stores a local token at `token.json`. Enable the Google Calendar API and
 create an OAuth **Desktop app** client first, saving its file as `credentials.json`. Set
