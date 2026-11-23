@@ -75,52 +75,52 @@ Advanced but burnt out, 4 days to exam
    Rest            88.5         0.23    81.5  <== BEST
 
 ==============================================================================
-C. DYNAMIC PLANS  (today=2026-11-12, exam=2026-11-20)
+C. DYNAMIC PLANS  (today=2026-11-23, exam=2026-12-01)
 ==============================================================================
 
---- STRUGGLING  (start progress=0.10, stress=1.0)  -> examples/calendars/struggling.ics ---
+--- STRUGGLING  (start progress=0.10, stress=1.0)  -> examples/calendars\struggling.ics ---
 date        left days quiz stress ACTION      calendar entry
-Thu Nov 12    8  Many Poor Low    Intense5h   17:00-22:00
-Fri Nov 13    7  Many Poor Low    Intense5h   17:00-22:00
-Sat Nov 14    6  Some OK   High   Rest        all-day rest
-Sun Nov 15    5  Some OK   Low    Intense5h   17:00-22:00
-Mon Nov 16    4  Some OK   High   Rest        all-day rest
-Tue Nov 17    3  Some OK   Low    Intense5h   17:00-22:00
-Wed Nov 18    2  Few  OK   High   Intense5h   17:00-22:00
-Thu Nov 19    1  Few  Good High   Rest        all-day rest
+Mon Nov 23    8  Many Poor Low    Intense5h   17:00-22:00
+Tue Nov 24    7  Many Poor Low    Intense5h   17:00-22:00
+Wed Nov 25    6  Some OK   High   Rest        all-day rest
+Thu Nov 26    5  Some OK   Low    Intense5h   17:00-22:00
+Fri Nov 27    4  Some OK   High   Rest        all-day rest
+Sat Nov 28    3  Some OK   Low    Intense5h   17:00-22:00
+Sun Nov 29    2  Few  OK   High   Intense5h   17:00-22:00
+Mon Nov 30    1  Few  Good High   Rest        all-day rest
 
---- ADVANCED  (start progress=0.80, stress=0.5)  -> examples/calendars/advanced.ics ---
+--- ADVANCED  (start progress=0.80, stress=0.5)  -> examples/calendars\advanced.ics ---
 date        left days quiz stress ACTION      calendar entry
-Thu Nov 12    8  Many Good Low    Rest        all-day rest
-Fri Nov 13    7  Many Good Low    Rest        all-day rest
-Sat Nov 14    6  Some Good Low    Rest        all-day rest
-Sun Nov 15    5  Some Good Low    Rest        all-day rest
-Mon Nov 16    4  Some Good Low    Rest        all-day rest
-Tue Nov 17    3  Some Good Low    Rest        all-day rest
-Wed Nov 18    2  Few  Good Low    Moderate3h  17:00-20:00
-Thu Nov 19    1  Few  Good Low    Moderate3h  17:00-20:00
+Mon Nov 23    8  Many Good Low    Rest        all-day rest
+Tue Nov 24    7  Many Good Low    Rest        all-day rest
+Wed Nov 25    6  Some Good Low    Rest        all-day rest
+Thu Nov 26    5  Some Good Low    Rest        all-day rest
+Fri Nov 27    4  Some Good Low    Rest        all-day rest
+Sat Nov 28    3  Some Good Low    Rest        all-day rest
+Sun Nov 29    2  Few  Good Low    Moderate3h  17:00-20:00
+Mon Nov 30    1  Few  Good Low    Moderate3h  17:00-20:00
 
---- MIXED (one hard concept)  (start progress=0.45, stress=1.5)  -> examples/calendars/mixed.ics ---
+--- MIXED (one hard concept)  (start progress=0.45, stress=1.5)  -> examples/calendars\mixed.ics ---
 date        left days quiz stress ACTION      calendar entry
-Thu Nov 12    8  Many OK   Low    Moderate3h  17:00-20:00
-Fri Nov 13    7  Many OK   Low    Moderate3h  17:00-20:00
-Sat Nov 14    6  Some OK   Low    Moderate3h  17:00-20:00
-Sun Nov 15    5  Some Good High   Rest        all-day rest
-Mon Nov 16    4  Some Good Low    Moderate3h  17:00-20:00
-Tue Nov 17    3  Some Good Low    Moderate3h  17:00-20:00
-Wed Nov 18    2  Few  Good Low    Moderate3h  17:00-20:00
-Thu Nov 19    1  Few  Good High   Rest        all-day rest
+Mon Nov 23    8  Many OK   Low    Moderate3h  17:00-20:00
+Tue Nov 24    7  Many OK   Low    Moderate3h  17:00-20:00
+Wed Nov 25    6  Some OK   Low    Moderate3h  17:00-20:00
+Thu Nov 26    5  Some Good High   Rest        all-day rest
+Fri Nov 27    4  Some Good Low    Moderate3h  17:00-20:00
+Sat Nov 28    3  Some Good Low    Moderate3h  17:00-20:00
+Sun Nov 29    2  Few  Good Low    Moderate3h  17:00-20:00
+Mon Nov 30    1  Few  Good High   Rest        all-day rest
 
---- ANXIOUS ADVANCED  (start progress=0.65, stress=3.5)  -> examples/calendars/anxious.ics ---
+--- ANXIOUS ADVANCED  (start progress=0.65, stress=3.5)  -> examples/calendars\anxious.ics ---
 date        left days quiz stress ACTION      calendar entry
-Thu Nov 12    8  Many OK   High   Rest        all-day rest
-Fri Nov 13    7  Many OK   Low    Moderate3h  17:00-20:00
-Sat Nov 14    6  Some Good High   Rest        all-day rest
-Sun Nov 15    5  Some Good Low    Moderate3h  17:00-20:00
-Mon Nov 16    4  Some Good Low    Moderate3h  17:00-20:00
-Tue Nov 17    3  Some Good Low    Moderate3h  17:00-20:00
-Wed Nov 18    2  Few  Good High   Rest        all-day rest
-Thu Nov 19    1  Few  Good Low    Moderate3h  17:00-20:00
+Mon Nov 23    8  Many OK   High   Rest        all-day rest
+Tue Nov 24    7  Many OK   Low    Moderate3h  17:00-20:00
+Wed Nov 25    6  Some Good High   Rest        all-day rest
+Thu Nov 26    5  Some Good Low    Moderate3h  17:00-20:00
+Fri Nov 27    4  Some Good Low    Moderate3h  17:00-20:00
+Sat Nov 28    3  Some Good Low    Moderate3h  17:00-20:00
+Sun Nov 29    2  Few  Good High   Rest        all-day rest
+Mon Nov 30    1  Few  Good Low    Moderate3h  17:00-20:00
 
 ==============================================================================
 D. EFFECT OF lambda (stress weight) - same student, same day
