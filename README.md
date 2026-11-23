@@ -138,7 +138,3 @@ docs/             network diagram, parameter reference
   (or the first concept if none are Hard), not allocated per concept.
 - The default dates for the four-scenario demo are relative to the day it is run. `examples/` files
   are captured sample outputs, not refreshed automatically.
-
-## License
-
-MIT (replace `<YOUR NAME>` in `LICENSE`).
